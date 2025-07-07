@@ -41,5 +41,42 @@ def exec_sql(conn_string: str, sql_statement: str):
     return results
 
 
+def files_organiser(files):
+    reportfiles = []
+    datafiles = []
+    otherfiles = []
+    for file in files:
+        tree = ElementTree.parse(file)
+        root = tree.getroot()
+        match root.find('MessageType').text:
+            case 'Report':
+                reportfiles.append(file)
+
+            case 'Data':
+                datafiles.append(file)
+
+            case _:
+                otherfiles.append(file)
+
+    return (reportfiles, datafiles, otherfiles)
+
+
+def report_handler(files):
+    for file in files:
+        with open(file, 'r') as xml:
+            sql_statement = 
+
+
+def mesh_receipts():
+    load_dotenv()
+    conn_string = get_conn_string()
+    files = glob(os.getenv('MESH_INBOX_FOLDER') + '*.ctl')
+    if len(files) == 0:
+        exit(0)
+
+    reportfiles, datafiles, otherfiles = files_organiser(files)
+
+
+
 if __name__ == '__main__':
     pass
