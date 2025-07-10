@@ -76,7 +76,44 @@ def test_reports_handler():
 
     assert reports_handler(get_safe_conn_string(), [filepath])
 
-def test_data_files_handler():
+def test_data_files_handler_ndoo_response():
+    load_dotenv(override=True)
+    tmp_path=os.getenv('MESH_INBOX_FOLDER')
+    filepath = os.path.join(tmp_path, 'datafile.ctl')
+    sample_xml = """<DTSControl>
+  <Version>1.0</Version>
+  <AddressType>DTS</AddressType>
+  <MessageType>Data</MessageType>
+  <From_DTS>0ARHC002</From_DTS>
+  <To_DTS>X26HC065</To_DTS>
+  <Subject>0ARHC002-27022025-0047</Subject>
+  <LocalId>0ARHC002-27022025-0047-TEST</LocalId>
+  <DTSId>20250227121034456686_DD8A76</DTSId>
+  <Compress>Y</Compress>
+  <Encrypted>N</Encrypted>
+  <WorkflowId>SPINE_NTT_UPHOLDING</WorkflowId>
+  <IsCompressed>Y</IsCompressed>
+  <AllowChunking>Y</AllowChunking>
+  <StatusRecord>
+    <DateTime>20250227121034</DateTime>
+    <Event>TRANSFER</Event>
+    <Status>SUCCESS</Status>
+    <StatusCode>00</StatusCode>
+    <Description>Data Transfer success confirmation.</Description>
+  </StatusRecord>
+</DTSControl>
+"""
+    with open(filepath, 'w') as f:
+        f.write(sample_xml)
+    sample_txt = '''1111111111,
+'''
+    datfilepath = filepath.replace('.ctl', '.dat')
+    with open(datfilepath, 'w') as f:
+        f.write(sample_txt)
+
+    assert not data_files_handler(get_safe_conn_string(), [filepath])
+
+def test_data_files_handler_success_report():
     load_dotenv(override=True)
     tmp_path=os.getenv('MESH_INBOX_FOLDER')
     filepath = os.path.join(tmp_path, 'datafile.ctl')
@@ -116,5 +153,4 @@ def test_data_files_handler():
         f.write(sample_json)
 
     assert not data_files_handler(get_safe_conn_string(), [filepath])
-
 
