@@ -1,4 +1,5 @@
 from mesh_receipt import *
+from prefect import flow
 
 def get_safe_conn_string():
     load_dotenv(override=True)
@@ -153,4 +154,7 @@ def test_data_files_handler_success_report():
         f.write(sample_json)
 
     assert not data_files_handler(get_safe_conn_string(), [filepath])
+
+def test_make_flow_from_func():
+   servable_flow = flow(mesh_receipt)
 

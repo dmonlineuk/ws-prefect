@@ -118,7 +118,7 @@ EXEC [ndoo_processing].[new_receipts_report_entry]
                 pass
 
 
-def mesh_receipts():
+def mesh_receipt():
     load_dotenv()
     conn_string = get_conn_string()
     files = glob(os.getenv('MESH_INBOX_FOLDER') + '*.ctl')
