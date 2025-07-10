@@ -1,0 +1,8 @@
+#!/bin/bash
+
+podman run \
+	-d \
+	--name prefect-server \
+	-p 4200:4200 \
+	prefecthq/prefect:3-latest \
+	prefect server start --host 0.0.0.0
