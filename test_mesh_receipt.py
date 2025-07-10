@@ -76,6 +76,7 @@ def test_reports_handler():
         f.write(sample_xml)
 
     assert reports_handler(get_safe_conn_string(), [filepath])
+    os.remove(filepath)
 
 def test_data_files_handler_ndoo_response():
     load_dotenv(override=True)
@@ -113,7 +114,9 @@ def test_data_files_handler_ndoo_response():
         f.write(sample_txt)
 
     assert not data_files_handler(get_safe_conn_string(), [filepath])
-
+    os.remove(filepath)
+    os.remove(datfilepath)
+    
 def test_data_files_handler_success_report():
     load_dotenv(override=True)
     tmp_path=os.getenv('MESH_INBOX_FOLDER')
@@ -154,6 +157,8 @@ def test_data_files_handler_success_report():
         f.write(sample_json)
 
     assert not data_files_handler(get_safe_conn_string(), [filepath])
+    os.remove(filepath)
+    os.remove(datfilepath)
 
 def test_make_flow_from_func():
    servable_flow = flow(mesh_receipt)
