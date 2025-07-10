@@ -37,7 +37,10 @@ def exec_sql(conn_string: str, sql_statement: str):
         connection.autocommit = True
         cursor = connection.cursor()
         cursor.execute(sql_statement)
-        results = cursor.fetchall() # list of tuples
+        try:
+            results = cursor.fetchall() # list of tuples
+        except:
+            results = []
     return results
 
 
@@ -61,10 +64,58 @@ def files_organiser(files):
     return (reportfiles, datafiles, otherfiles)
 
 
-def report_handler(files):
+def reports_handler(conn_string, files):
     for file in files:
         with open(file, 'r') as xml:
-            sql_statement = 
+            sql_statement = f"""
+EXEC [mesh_processing].[new_report_entry]
+      @filename = '{file}'
+    , @xml = '{xml.read()}'
+"""
+        results = exec_sql(conn_string, sql_statement)
+
+    return results
+
+
+def data_files_handler(conn_string, files):
+    for file in files:
+        with open(file, 'r') as xml:
+            sql_statement = f"""
+EXEC [mesh_processing].[new_data_control_entry]
+      @filename = '{file}'
+    , @xml = '{xml.read()}'
+"""
+        results = exec_sql(conn_string, sql_statement)
+        new_id = results[0][0]
+
+        # Test source: NHSE (NDOO)?
+        tree = ElementTree.parse(file)
+        root = tree.getroot()
+        match root.find('From_DTS').text:
+            # NHSE?
+            case 'X26HC065':
+                match root.find('Subject').text:
+                    # json success report?
+                    case 'SUCCESS':
+                        datfile = file.replace('.ctl', '.dat')
+                        with open(datfile, 'r') as json:
+                            sql_statement = f"""
+EXEC [ndoo_processing].[new_receipts_report_entry]
+      @json = '{json.read()}'
+    , @data_id = '{new_id}'
+"""                            
+                        exec_sql(conn_string, sql_statement)
+
+                    # else, NDOO response data
+                    case _:
+                        exec_id = root.find('LocalId').text # ToDo: establish exec_id is LocalId in whole or in part?
+                        datfile = file.replace('.ctl', '.dat')
+                        response = upload_ndoo_response(exec_id, datfile)
+                        return response
+
+            case _:
+                # ToDo: move files for loading to appropriate folder
+                pass
 
 
 def mesh_receipts():
@@ -75,7 +126,9 @@ def mesh_receipts():
         exit(0)
 
     reportfiles, datafiles, otherfiles = files_organiser(files)
-
+    reports_handler(reportfiles)
+    data_files_handler(datafiles)
+    # ToDo: edge cases for `otherfiles` as necessary
 
 
 if __name__ == '__main__':
