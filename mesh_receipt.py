@@ -122,13 +122,11 @@ def mesh_receipt():
     load_dotenv()
     conn_string = get_conn_string()
     files = glob(os.getenv('MESH_INBOX_FOLDER') + '*.ctl')
-    if len(files) == 0:
-        exit(0)
-
-    reportfiles, datafiles, otherfiles = files_organiser(files)
-    reports_handler(reportfiles)
-    data_files_handler(datafiles)
-    # ToDo: edge cases for `otherfiles` as necessary
+    if len(files) > 0:
+        reportfiles, datafiles, otherfiles = files_organiser(files)
+        reports_handler(reportfiles)
+        data_files_handler(datafiles)
+        # ToDo: edge cases for `otherfiles` as necessary
 
 
 if __name__ == '__main__':
