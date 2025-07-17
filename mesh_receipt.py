@@ -124,8 +124,8 @@ def mesh_receipt():
     files = glob(os.getenv('MESH_INBOX_FOLDER') + '*.ctl')
     if len(files) > 0:
         reportfiles, datafiles, otherfiles = files_organiser(files)
-        reports_handler(reportfiles)
-        data_files_handler(datafiles)
+        reports_handler(conn_string, reportfiles)
+        data_files_handler(conn_string, datafiles)
         # ToDo: edge cases for `otherfiles` as necessary
 
 
